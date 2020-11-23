@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset='utf-8'>
+	<meta name='viewport' content='width=device-width,initial-scale=1'>
+
+	<title>Sample1</title>
+
+	<link rel='stylesheet' href='listview.css'>
+	<script defer src='listview.js'></script>
+
+	<style type="text/css">
+		.listView ul {
+			margin: 0;
+			padding: 0;
+		}
+
+		.listView li {
+			user-select: none;
+			border: 1px solid transparent;
+			padding: 2px;
+		}
+
+		.listView li:hover {
+			cursor: pointer;
+		}
+
+		.listView .selected {
+			background: #cce8ff;
+			border: 1px solid #99d1ff;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>Sample1</h1>
+	<div id="listView1" class="listView"></div>
+	<p>selectedIndex = <span id="selectedIndex1"></span></p>
+	<hr>
+
+	<h2>要素追加</h2>
+	<label for="name">name:</label>
+	<input type="text" id="name">
+	<button onclick="addItem()">追加</button>
+	<hr>
+
+	<h2>要素削除</h2>
+	<p>選択中の要素を削除します</p>
+	<button onclick="removeItem()">削除</button>
+	<hr>
+
+	<h2>クリア</h2>
+	<p>リストをクリアします</p>
+	<button onclick="clearItems()">クリア</button>
+	<hr>
+
+	<h2>再初期化</h2>
+	<p>指定した内容でリストを再初期化します</p>
+	<div>
+		<textarea id="reinitData" style="width:300px;height:100px">[
+  {"name": "foo1"},
+  {"name": "foo2"},
+  {"name": "foo3"},
+  {"name": "foo4"},
+  {"name": "foo5"}
+]</textarea>
+	</div>
+	<button onclick="reinitItems()">再初期化</button>
+
+	<script>
+		let listView1;
+		document.addEventListener("DOMContentLoaded", function (event) {
+			listView1 = new ListView({
+				target: document.getElementById("listView1"),
+				props: {
+					width: "200px",
+					height: "200px",
+					items: [
+						{ name: "test1" },
+						{ name: "test2" },
+						{ name: "test3" },
+						{ name: "test4" },
+						{ name: "test5" },
+						{ name: "test6" },
+						{ name: "test7" },
+						{ name: "test8" },
+						{ name: "test9" },
+						{ name: "test10" }
+					],
+					multiSelect: true
+				}
+			});
+			// コールバック設定
+			listView1.setCallback(onSelect);
+
+			showSelectedIndex();
+		});
+
+		/**
+		 * 要素選択時のコールバック関数
+		 * @param sender ListView インスタンス
+		 * @param currSelCount 操作後の選択要素数
+		 */
+		 function onSelect(sender, currSelCount) {
+			console.log("currSelCount:" + currSelCount);
+			let indexes = sender.getSelectedIndexes();
+			document.getElementById("selectedIndex1").textContent = JSON.stringify(indexes);
+		}
+
+		/**
+		 * 選択中されているインデックスの表示更新
+		 */
+		function showSelectedIndex() {
+			document.getElementById("selectedIndex1").textContent = JSON.stringify(listView1.getSelectedIndexes());
+		}
+
+		/**
+		 * 要素追加
+		 */
+		function addItem() {
+			let nameValue = document.getElementById("name").value;
+			if (nameValue.length > 0) {
+				let newItem = { name: nameValue };
+				listView1.add(newItem);
+				document.getElementById("name").value = '';
+			}
+		}
+
+		/**
+		 * 要素削除
+		 */
+		function removeItem() {
+			let indexes = listView1.getSelectedIndexes();
+			for (let i = indexes.length-1; i >= 0; i--) {
+				listView1.remove(indexes[i]);
+			}
+			showSelectedIndex();
+		}
+
+		/**
+		 * クリア
+		 */
+		function clearItems() {
+			listView1.clear();
+			showSelectedIndex();
+		}
+
+		/**
+		 * 再初期化
+		 */
+		function reinitItems() {
+			let data = JSON.parse(document.getElementById('reinitData').value);
+			if (listView1.setItems(data)) {
+				console.log("setItems() succeeded")
+			}
+			else {
+				console.log("setItems() failed");
+			}
+			showSelectedIndex();
+		}
+	</script>
+</body>
+
+</html>
